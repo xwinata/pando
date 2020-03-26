@@ -1,0 +1,140 @@
+basePath: /
+definitions:
+  handlers.LoginPayload:
+    properties:
+      password:
+        example: pass123
+        type: string
+      username:
+        example: user123
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handlers.LoginResponse:
+    properties:
+      code:
+        description: |-
+          Error code explanations
+          0000 = Success
+          0001 = Error Validation
+          0002 = Function Error
+          0003 = Permission denied
+        example: "0001"
+        type: string
+      details:
+        $ref: '#/definitions/handlers.LoginResponseDetails'
+        type: object
+      message:
+        example: this is example message
+        type: string
+    type: object
+  handlers.LoginResponseDetails:
+    properties:
+      expires_in:
+        example: 3600
+        type: integer
+      token:
+        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJle...
+        type: string
+    type: object
+  handlers.ViewCurrentUserResponse:
+    properties:
+      username:
+        type: string
+    type: object
+  helper.EchoResp:
+    properties:
+      code:
+        description: |-
+          Error code explanations
+          0000 = Success
+          0001 = Error Validation
+          0002 = Function Error
+          0003 = Permission denied
+        example: "0001"
+        type: string
+      details:
+        type: object
+      message:
+        example: this is example message
+        type: string
+    type: object
+info:
+  contact:
+    email: richstain2u@gmail.com
+    name: richstain
+  description: This is a sample server Petstore server.
+  license: {}
+  title: Pando API
+  version: "1.0"
+paths:
+  /client/login:
+    post:
+      consumes:
+      - application/json
+      description: login returns token and expire time in seconds
+      parameters:
+      - description: JSON request body
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.LoginResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helper.EchoResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.EchoResp'
+      security:
+      - BasicAuth: []
+      summary: Login user
+      tags:
+      - Client
+  /user/user:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ViewCurrentUserResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/helper.EchoResp'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helper.EchoResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.EchoResp'
+      security:
+      - OAuth2Password: []
+      summary: View current user datas
+      tags:
+      - User
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  OAuth2Password:
+    flow: password
+    tokenUrl: client/login
+    type: oauth2
+swagger: "2.0"

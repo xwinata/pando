@@ -1,0 +1,63 @@
+version: '3'
+
+services:
+    postgres_db:
+      image: postgres
+      restart: always
+      environment:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: pass
+        POSTGRES_DB: pando_db
+      ports:
+        - 5432:5432
+      container_name: postgres_db
+
+    adminer:
+        image: adminer
+        restart: always
+        links:
+            - postgres_db
+        ports:
+            - 8010:8080
+        container_name: adminer
+        hostname: "adminer.local"
+
+    portainer:
+        image: portainer/portainer
+        container_name: portainer
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: -H unix:///var/run/docker.sock --no-auth
+        ports:
+            - 9000:9000
+
+    pando:
+        build: .
+        ports:
+        - 8000:8000
+        image: pando:development
+        volumes:
+        - ./:/go/src/pando
+        hostname: localhost
+        environment:
+        - GO111MODULE=auto
+        - PANDO_TIMEZONE=Asia/Jakarta
+        - PANDO_PORT=8000
+        - PANDO_JWT_EXPIRES=3600
+        - PANDO_JWT_SECRET=ABCDE12345
+        - PANDO_DB_ADAPTER=postgres
+        - PANDO_DB_HOST=postgres_db
+        - PANDO_DB_PORT=5432
+        - PANDO_DB_TABLE=pando_db
+        - PANDO_DB_USERNAME=user
+        - PANDO_DB_PASSWORD=pass
+        - PANDO_DB_SSL=disable
+        - PANDO_DB_LOGMODE=true
+        container_name: pando
+        depends_on: 
+          - postgres_db
+
+networks:
+    default:
+      external:
+        name: pando_net
