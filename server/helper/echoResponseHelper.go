@@ -1,6 +1,6 @@
 package helper
 
-import "github.com/labstack/echo"
+import "github.com/labstack/echo/v4"
 
 // EchoResp type
 type EchoResp struct {

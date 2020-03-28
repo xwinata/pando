@@ -9,7 +9,7 @@ import (
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // ViewCurrentUserResponse struct response for function ViewCurrentUser

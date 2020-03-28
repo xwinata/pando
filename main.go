@@ -7,7 +7,7 @@ import (
 	"pando/custom_modules/seed"
 	"pando/server/router"
 
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 var (

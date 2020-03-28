@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
