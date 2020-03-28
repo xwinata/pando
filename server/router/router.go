@@ -3,6 +3,7 @@ package router
 import (
 	"os"
 	"strings"
+	"flag"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -65,6 +66,10 @@ func NewRouter() *echo.Echo {
 }
 
 func generateRoutePermissions(e *echo.Echo) {
+	if flag.Lookup("test.v") != nil {
+		return
+	}
+
 	routes := e.Routes()
 	err := db.DB.Exec("TRUNCATE TABLE permissions RESTART IDENTITY CASCADE").Error
 	if err != nil {
