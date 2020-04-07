@@ -131,10 +131,10 @@ paths:
       tags:
       - User
 securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
   BasicAuth:
     type: basic
-  OAuth2Password:
-    flow: password
-    tokenUrl: client/login
-    type: oauth2
 swagger: "2.0"

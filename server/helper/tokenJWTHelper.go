@@ -61,8 +61,8 @@ func ValidateUserPermission(next echo.HandlerFunc) echo.HandlerFunc {
 		err := db.DB.Table("role_permissions").
 			Joins("INNER JOIN permissions ON permissions.id = role_permissions.permission_id").
 			Joins("INNER JOIN user_roles ON user_roles.role_id = role_permissions.role_id").
-			Where("permissions.path = ?", c.Path()).
-			Where("user_roles.user_id = ?", userID).
+			Where("permissions.path = ? AND user_roles.user_id = ?", c.Path(), userID).
+			Or("permissions.name = ?", "all").
 			First(&rolePermission).
 			Error
 		if err != nil {

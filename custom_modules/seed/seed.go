@@ -35,11 +35,9 @@ func Seed() {
 	db.DB.Create(&adminUserRole)
 
 	permission := models.Permission{
-		Method: "ALL",
-		Path:   "all",
-		Name:   "all",
+		Name: "all",
 	}
-	db.DB.Create(&permission)
+	db.DB.Model(&models.Permission{}).Scan(&permission)
 
 	rolePermission := models.RolePermission{
 		RoleID:       adminRole.ID,

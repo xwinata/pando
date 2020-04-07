@@ -1,9 +1,9 @@
 package router
 
 import (
+	"flag"
 	"os"
 	"strings"
-	"flag"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -36,8 +36,9 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 // @contact.email richstain2u@gmail.com
 // @BasePath /
 // @securityDefinitions.basic BasicAuth
-// @securitydefinitions.oauth2.password OAuth2Password
-// @tokenUrl client/login
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func NewRouter() *echo.Echo {
 	e := echo.New()
 
@@ -75,6 +76,13 @@ func generateRoutePermissions(e *echo.Echo) {
 	if err != nil {
 		panic(err)
 	}
+
+	allGrant := models.Permission{
+		Method: "ALL",
+		Path:   "all",
+		Name:   "all",
+	}
+	db.DB.Create(&allGrant)
 
 	for _, route := range routes {
 		permission := models.Permission{
