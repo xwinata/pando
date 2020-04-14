@@ -39,3 +39,14 @@ to be writen.
 
 ## API Documentation
 RESTful APIs documentation can be opened in url /swagger/index.html. for writing documentation guide, please refer to [guide](https://github.com/swaggo/swag)
+
+## Coverages
+to generate coverage file use command :
+```
+go test tests/* -coverprofile=[filename] -coverpkg=./...
+```
+to read code coverage use command :
+```
+go tool cover -html=[filename]
+```
+read more about golang code coverage [here](https://blog.golang.org/cover)
