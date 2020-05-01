@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"pando/custom_modules/seed"
-	"pando/server/router"
-
-	"github.com/labstack/echo/v4/middleware"
+	"pando/server"
+	"pando/worker"
 )
 
 var (
@@ -29,18 +29,13 @@ func main() {
 			flags.Usage()
 			break
 		case "server":
-			e := router.NewRouter()
-			if os.Getenv("PANDO_CORS") == "true" {
-				e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-					AllowOrigins: []string{"*"},
-					AllowMethods: []string{"*"},
-					AllowHeaders: []string{"*"},
-				}))
-			}
-			e.Logger.Fatal(e.Start(":" + os.Getenv("PANDO_PORT")))
+			server.Start()
+			fmt.Println(args[1])
 			os.Exit(0)
 			break
 		case "worker":
+			worker.Start()
+			fmt.Println(args[1])
 			os.Exit(0)
 			break
 		}
@@ -59,7 +54,7 @@ func main() {
 func usage() {
 	usagestring := `
 to run the app :
-	[app_name] run
+	[app_name] run server [queue_name]
 	`
 
 	log.Print(usagestring)

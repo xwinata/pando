@@ -1,61 +1,124 @@
 version: '3'
 
 services:
-    postgres_db:
-      image: postgres
+  postgres_db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=pando_db
+    ports:
+      - 5432:5432
+    container_name: postgres_db
+
+  rabbitmq_server:
+    image: rabbitmq
+    environment:
+      - RABBITMQ_ERL_COOKIE=DH8C5BJXTHIJDQY7
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=pass
+      - RABBITMQ_VHOST=/
+    ports:
+      - 5672:5672
+    container_name: rabbitmq_server
+    # command:
+    #     - rabbitmqctl add_user user pass
+    #     - rabbitmqctl set_permissions -p / user ".*" ".*" ".*"
+
+  adminer:
+      image: adminer
       restart: always
-      environment:
-        POSTGRES_USER: user
-        POSTGRES_PASSWORD: pass
-        POSTGRES_DB: pando_db
-      ports:
-        - 5432:5432
-      container_name: postgres_db
-
-    adminer:
-        image: adminer
-        restart: always
-        links:
-            - postgres_db
-        ports:
-            - 8010:8080
-        container_name: adminer
-        hostname: "adminer.local"
-
-    portainer:
-        image: portainer/portainer
-        container_name: portainer
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        command: -H unix:///var/run/docker.sock --no-auth
-        ports:
-            - 9000:9000
-
-    pando:
-        build: .
-        ports:
-        - 8000:8000
-        image: pando:development
-        volumes:
-        - ./:/go/src/pando
-        hostname: localhost
-        environment:
-        - GO111MODULE=auto
-        - PANDO_TIMEZONE=Asia/Jakarta
-        - PANDO_PORT=8000
-        - PANDO_JWT_EXPIRES=3600
-        - PANDO_JWT_SECRET=ABCDE12345
-        - PANDO_DB_ADAPTER=postgres
-        - PANDO_DB_HOST=postgres_db
-        - PANDO_DB_PORT=5432
-        - PANDO_DB_TABLE=pando_db
-        - PANDO_DB_USERNAME=user
-        - PANDO_DB_PASSWORD=pass
-        - PANDO_DB_SSL=disable
-        - PANDO_DB_LOGMODE=true
-        container_name: pando
-        depends_on: 
+      links:
           - postgres_db
+      ports:
+          - 8010:8080
+      container_name: adminer
+      hostname: "adminer.local"
+
+  portainer:
+      image: portainer/portainer
+      container_name: portainer
+      volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+      command: -H unix:///var/run/docker.sock --no-auth
+      ports:
+          - 9000:9000
+
+  pando_server:
+      build: .
+      ports:
+      - 8000:8000
+      image: pando:development
+      volumes:
+      - ./:/go/src/pando
+      hostname: localhost
+      environment:
+      - GO111MODULE=auto
+      - PANDO_TIMEZONE=Asia/Jakarta
+      - PANDO_PORT=8000
+      - PANDO_JWT_EXPIRES=3600
+      - PANDO_JWT_SECRET=ABCDE12345
+      - PANDO_DB_ADAPTER=postgres
+      - PANDO_DB_HOST=postgres_db
+      - PANDO_DB_PORT=5432
+      - PANDO_DB_TABLE=pando_db
+      - PANDO_DB_USERNAME=user
+      - PANDO_DB_PASSWORD=pass
+      - PANDO_DB_SSL=disable
+      - PANDO_DB_LOGMODE=true
+      - PANDO_NODE=server
+      - PANDO_QUEUE_NAME=queue_1
+      - PANDO_AMQP_USER=user
+      - PANDO_AMQP_PASS=pass
+      - PANDO_AMQP_HOST=rabbitmq_server
+      - PANDO_AMQP_PORT=5672
+      - PANDO_AMQP_RECONNECT_FOREVER=true
+      - PANDO_AMQP_RECONNECT_RETRIES=5
+      - PANDO_AMQP_RECONNECT_INTERVAL=5
+      - PANDO_AMQP_RECONNECT_DEBUGMODE=true
+      - PANDO_AMQP_EXCHANGE_NAME=pando_exc
+      container_name: pando_server
+      # depends_on: 
+      #   - postgres_db
+      #   - rabbitmq_server
+
+  pando_worker:
+      build: .
+      ports:
+      - 8001:8000
+      image: pando:development
+      volumes:
+      - ./:/go/src/pando
+      hostname: localhost
+      environment:
+      - GO111MODULE=auto
+      - PANDO_TIMEZONE=Asia/Jakarta
+      - PANDO_PORT=8001
+      - PANDO_DB_ADAPTER=postgres
+      - PANDO_DB_HOST=postgres_db
+      - PANDO_DB_PORT=5432
+      - PANDO_DB_TABLE=pando_db
+      - PANDO_DB_USERNAME=user
+      - PANDO_DB_PASSWORD=pass
+      - PANDO_DB_SSL=disable
+      - PANDO_DB_LOGMODE=true
+      - PANDO_NODE=worker
+      - PANDO_WORKER_NAME=worker_1
+      - PANDO_QUEUE_NAME=queue_1
+      - PANDO_AMQP_USER=user
+      - PANDO_AMQP_PASS=pass
+      - PANDO_AMQP_HOST=rabbitmq_server
+      - PANDO_AMQP_PORT=5672
+      - PANDO_AMQP_RECONNECT_FOREVER=true
+      - PANDO_AMQP_RECONNECT_RETRIES=5
+      - PANDO_AMQP_RECONNECT_INTERVAL=5
+      - PANDO_AMQP_RECONNECT_DEBUGMODE=true
+      - PANDO_AMQP_EXCHANGE_NAME=pando_exc
+      container_name: pando_worker
+      # depends_on: 
+      #   - postgres_db
+      #   - rabbitmq_server
 
 networks:
     default:

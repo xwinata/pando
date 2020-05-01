@@ -10,5 +10,10 @@ ENV TZ=${PANDO_TIMEZONE}
 
 CMD go get \
     && go build -v -o $GOPATH/bin/pando \
-    && pando run server;
+    && if [ $PANDO_NODE == "server" ]; then \
+        pando run server ; \ 
+    elif [ $PANDO_NODE == "worker" ]; then \
+        pando run worker ; \
+    fi
+
 EXPOSE ${PANDO_PORT}

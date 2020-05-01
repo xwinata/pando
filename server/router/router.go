@@ -11,6 +11,7 @@ import (
 
 	"pando/db"
 	"pando/models"
+	"pando/server/handlers"
 
 	echoSwagger "github.com/swaggo/echo-swagger"
 
@@ -43,6 +44,8 @@ func NewRouter() *echo.Echo {
 	e := echo.New()
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
+	e.GET("/testTaskDispatch", handlers.TestQueueAtask)
 
 	// url rewrite
 	url := strings.Split(os.Getenv("PANDO_URL_REWRITE"), ",")
